@@ -1,0 +1,76 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+require 'pathname'
+require 'pp'
+require 'shellwords'
+require 'json'
+
+def run_ffmpeg(params)
+  `ffmpeg -y #{params}`
+
+  raise "Oh noes" unless $?.exitstatus == 0
+end
+
+def create_source(input, output)
+  run_ffmpeg("-i #{input} -acodec pcm_s16be -vcodec copy #{output}")
+end
+
+def create_silence(input, output)
+  run_ffmpeg("-f lavfi -i anullsrc -acodec pcm_s16be -vcodec none -t 60 #{output}")
+end
+
+def say(text, output: nil, rate: nil, voice:)
+  rate_value = rate ? "-r #{rate}" : ''
+  output_value = output ? "-o #{output}" : ''
+  `say -v #{voice} #{rate_value} #{output_value} #{Shellwords.escape(text)}`
+end
+
+def shape(input, output, duration:)
+  result = JSON.parse(`ffprobe -i #{input} -show_entries format=duration -v quiet -print_format json`)
+
+  input_duration = result['format']['duration'].to_f
+
+  speedup = input_duration / duration
+
+  run_ffmpeg("-i #{input} -filter:a atempo=\"#{speedup}\" #{output}")
+end
+
+def insert(input, output, audio:, offset:)
+  ms = (offset * 1000).to_i
+
+  puts "[1:0]adelay=#{ms}[tts];[0:1][tts]amix[out]"
+
+  run_ffmpeg("-i #{input} -i #{audio} -filter_complex '[1:0]adelay=#{ms}[delayed];[0:0][delayed]amix=dropout_transition=0,volume=2[out]' -acodec pcm_s16be -ac 1 -map [out] #{output}")
+end
+
+OutputDirectory = Pathname.new(ARGV[1])
+InputVideo = ARGV[2]
+
+FileUtils.mkdir_p(OutputDirectory)
+
+VoiceMap = {
+  Announcer: 'Alex',
+  JayZ: 'Daniel',
+  LadyBack: 'Kate'
+}
+
+create_silence(InputVideo, OutputDirectory / '-1.aiff')
+
+Parameters = File.read(ARGV[0]).each_line.map do |l|
+  start, duration, vocalist, line = l.split("\t").map(&:strip)
+
+  { start: start.to_f, duration: duration.to_f, voice: VoiceMap.fetch(vocalist.to_sym), line: line }
+end
+
+Parameters.each_with_index do |param, i|
+  say(param[:line], voice: param[:voice], output: OutputDirectory / "#{i}.voice.aiff")
+  shape(OutputDirectory / "#{i}.voice.aiff", OutputDirectory / "#{i}.shaped.aiff", duration: param.fetch(:duration))
+end
+
+
+create_source(InputVideo, OutputDirectory / '-1.mkv')
+
+Parameters.each_with_index do |param, i|
+  insert(OutputDirectory / "#{i - 1}.aiff", OutputDirectory / "#{i}.aiff", audio: OutputDirectory / "#{i}.shaped.aiff", offset: param.fetch(:start))
+end

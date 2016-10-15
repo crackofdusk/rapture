@@ -1,0 +1,13 @@
+ 0.55	1.40	Announcer	Ladies and gentlemen
+ 1.80	1.90	Announcer	let's put our hands together for the astonishing…
+ 3.83	1.40	LadyBack	H to the Izz-o
+ 5.23	1.15	LadyBack	V to the Izz-a
+ 5.80	3.00	JayZ	Welcome ladies and gentlemen to the 8th wonder of the world
+ 9.40	1.37	JayZ	The flow of the century
+11.50	0.90	JayZ	Oh it's timeless
+13.15	0.50	JayZ	Hove
+15.98	1.17	JayZ	Thanks for coming out tonight
+18.00	1.32	JayZ	You could have been anywhere in the world
+20.00	0.81	JayZ	But you're here with us
+21.81	1.19	JayZ	I appreciate that
+24.25	0.35	JayZ	Ungh
