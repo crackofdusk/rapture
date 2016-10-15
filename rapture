@@ -52,7 +52,8 @@ FileUtils.mkdir_p(OutputDirectory)
 VoiceMap = {
   Announcer: 'Alex',
   JayZ: 'Daniel',
-  LadyBack: 'Kate'
+  LadyBack: 'Kate',
+  Eminem: 'Daniel'
 }
 
 create_silence(InputVideo, OutputDirectory / '-1.aiff')
@@ -69,7 +70,7 @@ Parameters.each_with_index do |param, i|
 end
 
 
-create_source(InputVideo, OutputDirectory / '-1.mkv')
+# create_source(InputVideo, OutputDirectory / '-1.mkv')
 
 Parameters.each_with_index do |param, i|
   insert(OutputDirectory / "#{i - 1}.aiff", OutputDirectory / "#{i}.aiff", audio: OutputDirectory / "#{i}.shaped.aiff", offset: param.fetch(:start))
