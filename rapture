@@ -54,7 +54,10 @@ VoiceMap = {
   JayZ: 'Daniel',
   LadyBack: 'Kate',
   Eminem: 'Daniel',
-  Rihanna: 'Samantha'
+  Rihanna: 'Samantha',
+  Biggie: 'Daniel',
+  Chorus: 'Alex',
+  PuffDaddy: 'Alex'
 }
 
 create_silence(InputVideo, OutputDirectory / '-1.aiff')
